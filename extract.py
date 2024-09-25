@@ -45,7 +45,7 @@ def store_in_mysql(articles):
     cursor = connection.cursor()
     for article in articles:
         cursor.execute(
-            "INSERT INTO oncology_articles (title, author, pub_date, abstract) VALUES (%s, %s, %s, %s)",
+            "INSERT INTO oncology_data (title, author, pub_date, abstract) VALUES (%s, %s, %s, %s)",
             article
         )
     connection.commit()
