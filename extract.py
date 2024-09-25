@@ -6,11 +6,9 @@ from sentence_transformers import SentenceTransformer
 from pymilvus import connections, Collection, utility
 from datetime import datetime, timedelta
 
-# Load configurations from config.ini
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-# Function to extract articles
 def get_articles():
     """
     Scrape oncology articles from the Nature website.
@@ -34,7 +32,6 @@ def get_articles():
 
     return articles
 
-# Function to store data in MySQL
 def store_in_mysql(articles):
     """
     Connects to MySQL database and inserts extracted articles.
@@ -56,7 +53,6 @@ def store_in_mysql(articles):
     cursor.close()
     connection.close()
 
-# Function to store article titles in Milvus
 def store_in_milvus(titles):
     """
     Connects to Milvus VectorDB and stores article titles as vectors using embeddings.
@@ -72,7 +68,6 @@ def store_in_milvus(titles):
     collection = Collection("oncology_titles")
     collection.insert([titles, embeddings])
 
-# Function to create a Milvus collection
 def create_milvus_collection():
     """
     Defines and creates a new collection in Milvus for storing oncology titles.
@@ -80,7 +75,6 @@ def create_milvus_collection():
     """
     pass
 
-# Function to search articles in Milvus using a natural language query
 def search_in_milvus(query):
     """
     Performs a similarity search on the stored article titles in Milvus based on an input query.
@@ -91,7 +85,7 @@ def search_in_milvus(query):
     query_embedding = model.encode([query])
 
     search_params = {
-        "metric_type": "IP",  # Inner Product similarity search
+        "metric_type": "IP",
         "params": {"nprobe": 10},
     }
 
@@ -105,7 +99,6 @@ def search_in_milvus(query):
 
     return articles
 
-# Function to search based on natural language queries
 def search_journals(query):
     """
     Handles search requests. If the query contains "last week," it performs a date-based search.
@@ -116,8 +109,7 @@ def search_journals(query):
         return search_by_date(last_week)
     else:
         return search_in_milvus(query)
-
-# Function to search articles by date in MySQL
+    
 def search_by_date(date):
     """
     Queries MySQL to find articles published after a given date.
@@ -136,15 +128,13 @@ def search_by_date(date):
     connection.close()
     return results
 
-# Main execution
+
 if __name__ == "__main__":
     articles = get_articles()
     store_in_mysql(articles)
 
-    # Store titles in Milvus
     titles = [article[0] for article in articles]
     store_in_milvus(titles)
 
-    # Example search query
     found_articles = search_journals("Give me the journal those are published last week")
     print(found_articles)
